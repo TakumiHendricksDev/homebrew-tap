@@ -19,9 +19,35 @@ cask "wtm" do
   # architecture nobody has asked for yet.
   depends_on arch: :arm64
   # macOS 13, matching `bundle.macOS.minimumSystemVersion` in tauri.conf.json.
-  depends_on macos: ">= :ventura"
+  # Symbol, not the ">= :ventura" string: Homebrew deprecated the string form and
+  # now reads the bare symbol as a minimum.
+  depends_on macos: :ventura
 
   app "Worktree Manager.app"
+
+  # Clear the quarantine attribute Homebrew sets on every staged cask.
+  #
+  # This is a deliberate Gatekeeper bypass, so it deserves the space: wtm is
+  # neither signed nor notarized, and macOS refuses to open a quarantined app that
+  # is neither — reporting it as "damaged", which sounds like a corrupt download
+  # rather than a missing $99/yr signature. Without this the cask installs
+  # successfully and then produces an app that will not start, which is a worse
+  # outcome than either working or failing.
+  #
+  # Homebrew used to offer `--no-quarantine` for exactly this. As of Homebrew 6 the
+  # flag is rejected as an invalid option and the `HOMEBREW_CASK_OPTS` fallback is
+  # dead code — `cask_opts_quarantine?` in env_config.rb has no callers. So a cask
+  # for an unsigned app has no supported opt-out left, and this is the remaining
+  # mechanism.
+  #
+  # What you are trusting is the tap, not this line: you already chose to install a
+  # binary built by a GitHub Actions run from a public repository. The sha256 above
+  # pins exactly which one.
+  postflight do
+    system_command "/usr/bin/xattr",
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Worktree Manager.app"],
+                   print_stderr: false
+  end
 
   # Everything wtm writes lives in one XDG-style directory — config, the trust
   # store, and the log. A deliberate deviation from ~/Library/Application Support,
@@ -31,14 +57,11 @@ cask "wtm" do
   ]
 
   caveats <<~CAVEATS
-    wtm is not code-signed or notarized, so Homebrew's quarantine will stop it
-    from opening. Install it with:
+    wtm is not code-signed or notarized. This cask clears the quarantine attribute
+    after installing, because macOS would otherwise refuse to open the app and
+    report it as "damaged".
 
-      brew install --cask --no-quarantine takumihendricksdev/tap/wtm
-
-    If you already installed it without that flag, either reinstall as above or
-    clear the attribute by hand:
-
-      xattr -dr com.apple.quarantine "/Applications/Worktree Manager.app"
+    If you would rather macOS made that decision, install the zip from the releases
+    page by hand instead of using this tap.
   CAVEATS
 end
