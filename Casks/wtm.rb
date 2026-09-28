@@ -43,18 +43,29 @@ cask "wtm" do
   # What you are trusting is the tap, not this line: you already chose to install a
   # binary built by a GitHub Actions run from a public repository. The sha256 above
   # pins exactly which one.
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Worktree Manager.app"],
-                   print_stderr: false
+  #
+  # `postflight_steps`, not a `postflight` block. Homebrew 7 deprecates the Ruby
+  # blocks for declarative steps; official taps already reject them, and once the
+  # deprecation becomes a hard error this cask would stop loading at all, taking
+  # installs and upgrades with it. `{{appdir}}` is the step DSL's spelling of the
+  # block's `#{appdir}`, resolved to wherever `--appdir` put the app.
+  #
+  # The step must succeed, where the old block ignored a failure. `xattr -dr` exits
+  # 0 whether or not the attribute is present, so the only way it fails is an app
+  # that is not where the `app` stanza put it — and an install that carries on from
+  # there is the "installs, then will not start" outcome described above.
+  #
+  # This runs on `brew upgrade` as well as `brew install`, which is what lets wtm's
+  # own Update and restart hand the upgrade to Homebrew without a second
+  # Gatekeeper workaround of its own.
+  postflight_steps do
+    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/Worktree Manager.app"]
   end
 
   # Everything wtm writes lives in one XDG-style directory — config, the trust
   # store, and the log. A deliberate deviation from ~/Library/Application Support,
   # which is why `zap` names an unusual path for a Mac app.
-  zap trash: [
-    "~/.config/wtm",
-  ]
+  zap trash: "~/.config/wtm"
 
   caveats <<~CAVEATS
     wtm is not code-signed or notarized. This cask clears the quarantine attribute
