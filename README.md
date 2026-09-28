@@ -19,7 +19,8 @@ brew install --cask takumihendricksdev/tap/wtm
 **wtm is unsigned and un-notarized**, so macOS would normally refuse to open it and
 report it as *"damaged and can't be opened"* — Gatekeeper's message for *"this came
 from the internet and nobody paid Apple to vouch for it"*, not a statement about the
-download. The cask therefore clears the quarantine attribute after installing.
+download. The cask therefore clears the quarantine attribute after installing, and
+again after every upgrade.
 
 That is a deliberate Gatekeeper bypass and you should know it is happening. Homebrew
 used to expose `--no-quarantine` for this; as of Homebrew 6 the flag is rejected and
@@ -28,9 +29,8 @@ supported opt-out left. If you would rather macOS made the call, download the zi
 the [releases page](https://github.com/TakumiHendricksDev/worktreemanager/releases)
 by hand instead of using this tap.
 
-Apple silicon and macOS 13+. On Linux, grab the AppImage from the
-[releases page](https://github.com/TakumiHendricksDev/worktreemanager/releases)
-instead — Homebrew is not the right delivery mechanism there.
+Apple silicon and macOS 13+. There is no Linux build any more: the AppImage was
+dropped after v1.2.0.
 
 ## Updating
 
