@@ -1,6 +1,6 @@
 cask "wtm" do
-  version "2.0.2"
-  sha256 "18d2d80400330af3a4effa029cff07883d96e38a9bbd2a3114fe72b5a4724418"
+  version "2.0.3"
+  sha256 "bd7c6d50b5cc34c14dad943d24a6380fcad7fca8bfe590f0b3e5883370cb9840"
 
   url "https://github.com/TakumiHendricksDev/worktreemanager/releases/download/v#{version}/wtm-#{version}-macos-arm64.zip"
   name "Worktree Manager"
