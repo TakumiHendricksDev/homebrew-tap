@@ -16,17 +16,14 @@ project defines for itself in a `wtm.toml`.
 brew install --cask takumihendricksdev/tap/wtm
 ```
 
-**wtm is unsigned and un-notarized**, so macOS would normally refuse to open it and
-report it as *"damaged and can't be opened"* — Gatekeeper's message for *"this came
-from the internet and nobody paid Apple to vouch for it"*, not a statement about the
-download. The cask therefore clears the quarantine attribute after installing, and
-again after every upgrade.
+**wtm is signed with a Developer ID and notarized by Apple** (since 3.1.0), so
+Gatekeeper accepts it like any other downloaded app.
 
-That is a deliberate Gatekeeper bypass and you should know it is happening. Homebrew
-used to expose `--no-quarantine` for this; as of Homebrew 6 the flag is rejected and
-the `HOMEBREW_CASK_OPTS` path is dead code, so a cask for an unsigned app has no
-supported opt-out left. If you would rather macOS made the call, download the zip from
-the [releases page](https://github.com/TakumiHendricksDev/worktreemanager/releases)
+The cask also clears the quarantine attribute after installing, and again after every
+upgrade. For a notarized app that only skips macOS's one-time *"downloaded from the
+Internet"* confirmation. Before 3.1.0 wtm was unsigned, and the same step was the only
+reason it opened at all. If you would rather see the confirmation, download the zip
+from the [releases page](https://github.com/TakumiHendricksDev/worktreemanager/releases)
 by hand instead of using this tap.
 
 Apple silicon and macOS 13+. There is no Linux build any more: the AppImage was
